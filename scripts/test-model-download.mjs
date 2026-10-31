@@ -1,0 +1,16 @@
+import vm from 'node:vm';
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const code=fs.readFileSync(new URL('../js/AssetLoader.js',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace('export class AssetLoader','globalThis.AssetLoader = class AssetLoader');
+const callbacks=new Map();let timerId=0,resets=0;
+const context={GLTFLoader:class{},Map,AbortController,Uint8Array,setTimeout(fn,ms){assert.equal(ms,30000);callbacks.set(++timerId,fn);resets++;return timerId},clearTimeout(id){callbacks.delete(id)}};
+vm.runInNewContext(code,context);
+let chunks=[Uint8Array.of(1,2),Uint8Array.of(3,4)];const received=[];
+context.fetch=async()=>({ok:true,headers:{get:()=>4},body:{getReader:()=>({read:async()=>chunks.length?{done:false,value:chunks.shift()}:{done:true}})}});
+const loader=new context.AssetLoader();
+const buffer=await loader.fetchBuffer('model.glb',(loaded,total)=>received.push([loaded,total]));
+assert.deepEqual([...new Uint8Array(buffer)],[1,2,3,4]);assert.deepEqual(received,[[2,4],[4,4]]);assert.equal(resets,4);assert.equal(callbacks.size,0);
+context.fetch=async()=>({ok:false,status:503});await assert.rejects(loader.fetchBuffer('bad.glb'),/HTTP 503/);assert.equal(callbacks.size,0);
+context.fetch=(_,options)=>new Promise((resolve,reject)=>options.signal.addEventListener('abort',()=>reject(new Error('stalled'))));
+const stalled=loader.fetchBuffer('stalled.glb');[...callbacks.values()][0]();await assert.rejects(stalled,/stalled/);assert.equal(callbacks.size,0);
+console.log('PASS: streamed bytes, real progress, timeout reset per chunk, HTTP failures, stalled transfer abort, timer cleanup');

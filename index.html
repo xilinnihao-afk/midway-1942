@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#102a37">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 40 40%27%3E%3Crect width=%2740%27 height=%2740%27 fill=%27%23102936%27/%3E%3Ctext x=%278%27 y=%2730%27 font-size=%2728%27 fill=%27%23d7dfbd%27%3EM%3C/text%3E%3C/svg%3E">
+  <title>MIDWAY 1942 · 中途岛海战</title>
+  <link rel="stylesheet" href="./styles.css?v=30d0fe83273a">
+  <script type="importmap">{"imports": {"three": "./vendor/three.module.js?v=30d0fe83273a", "./js/MobileBrowser.js": "./js/MobileBrowser.js?v=30d0fe83273a", "./js/QATests.js": "./js/QATests.js?v=30d0fe83273a", "./js/AirWingManager.js": "./js/AirWingManager.js?v=30d0fe83273a", "./js/PilotBot.js": "./js/PilotBot.js?v=30d0fe83273a", "./js/SceneManager.js": "./js/SceneManager.js?v=30d0fe83273a", "./js/CombatEffects.js": "./js/CombatEffects.js?v=30d0fe83273a", "./js/ParticleManager.js": "./js/ParticleManager.js?v=30d0fe83273a", "./js/GyroSensor.js": "./js/GyroSensor.js?v=30d0fe83273a", "./js/PlaneManager.js": "./js/PlaneManager.js?v=30d0fe83273a", "./js/ShipManager.js": "./js/ShipManager.js?v=30d0fe83273a", "./js/MobileDiveQA.js": "./js/MobileDiveQA.js?v=30d0fe83273a", "./js/AudioManager.js": "./js/AudioManager.js?v=30d0fe83273a", "./js/config.js": "./js/config.js?v=30d0fe83273a", "./js/TidewaterFFT.js": "./js/TidewaterFFT.js?v=30d0fe83273a", "./js/main.js": "./js/main.js?v=30d0fe83273a", "./js/DiveSafety.js": "./js/DiveSafety.js?v=30d0fe83273a", "./js/TouchAim.js": "./js/TouchAim.js?v=30d0fe83273a", "./js/FlightManager.js": "./js/FlightManager.js?v=30d0fe83273a", "./js/FlightControls.js": "./js/FlightControls.js?v=30d0fe83273a", "./js/visit-metrics.js": "./js/visit-metrics.js?v=30d0fe83273a", "./js/TidewaterSpectrum.js": "./js/TidewaterSpectrum.js?v=30d0fe83273a", "./js/GyroAim.js": "./js/GyroAim.js?v=30d0fe83273a", "./js/AimAssist.js": "./js/AimAssist.js?v=30d0fe83273a", "./js/UIManager.js": "./js/UIManager.js?v=30d0fe83273a", "./js/feedback-entry.js": "./js/feedback-entry.js?v=30d0fe83273a", "./js/TidewaterSky.js": "./js/TidewaterSky.js?v=30d0fe83273a", "./js/TidewaterOcean.js": "./js/TidewaterOcean.js?v=30d0fe83273a", "./js/FlightTests.js": "./js/FlightTests.js?v=30d0fe83273a", "./js/AssetLoader.js": "./js/AssetLoader.js?v=30d0fe83273a", "./vendor/three.module.js": "./vendor/three.module.js?v=30d0fe83273a", "./vendor/GLTFLoader.js": "./vendor/GLTFLoader.js?v=30d0fe83273a", "./vendor/BufferGeometryUtils.js": "./vendor/BufferGeometryUtils.js?v=30d0fe83273a"}}</script>
+  <link rel="preload" as="image" href="./assets/ui/midway-cover.webp" fetchpriority="high">
+  <script src="./boot.js?v=30d0fe83273a" defer></script>
+<script defer src="./js/visit-metrics.js" data-site="midway"></script>
+<script defer src="./js/feedback-entry.js" data-site="midway"></script>
+</head>
+<body>
+  <main id="scene" aria-label="中途岛空战三维战场"></main>
+  <div id="hud" data-state="loading">
+    <canvas id="flight-markers" aria-hidden="true"></canvas>
+    <div id="damage-flash" aria-hidden="true"></div>
+    <header class="topbar">
+      <div class="wordmark">MIDWAY <span>1942</span><small>空中突击 / AIR STRIKE</small></div>
+      <div class="top-actions"><button id="sound-button" class="quiet-button" title="切换音效">音效 开</button><button id="camera-button" class="quiet-button" title="切换追尾距离（C）">视角 C</button><button id="pause-button" class="quiet-button" title="暂停（P）">Ⅱ 暂停</button></div>
+    </header>
+    <section class="objective" aria-label="任务目标"><span class="eyebrow">PRIMARY OBJECTIVE</span><b>突破防空 · 击沉双航母</b><div><span id="objective-count">航母 0 / 2</span><span id="air-count">僚机 4 · 敌机 8</span><span id="mission-time">00:00</span><span id="score">00000</span></div></section>
+    <section class="radar-panel" aria-label="雷达"><canvas id="minimap" width="280" height="280" aria-label="雷达：青色友舰，橙色敌舰，红色敌机"></canvas><small>RADAR <span>半径 1.4 km</span></small></section>
+    <div id="flight-warning" class="flight-warning" role="status"></div>
+    <div id="resupply-status" class="resupply-status"></div>
+    <section class="flight-status" aria-label="飞机状态">
+      <div class="aircraft-name"><span id="aircraft-name">F4U-4 海盗</span><small id="kill-count">击落 0</small></div>
+      <div class="health-heading"><span>机体</span><strong id="plane-health">120 / 120</strong></div><div class="meter"><i id="health-fill"></i></div>
+      <div class="flight-readouts"><div><b id="plane-speed">000</b><small>km/h 速度</small></div><div><b id="plane-altitude">000</b><small>m 高度</small></div><div><b id="plane-throttle">0</b><small>% 油门</small></div></div>
+    </section>
+    <section class="weapon-status" aria-label="武器与机动状态">
+      <div class="bomb-count"><span>对舰炸弹</span><strong id="bomb-count">6 / 6</strong><kbd>SPACE</kbd></div>
+      <button id="bomb-button" class="bomb-release" aria-label="投弹（空格或B）">投下炸弹 <kbd>SPACE / B</kbd></button><small id="bomb-status" class="bomb-status">圆环变绿时投弹</small>
+      <div class="weapon-meter gun-readout"><span>机炮 · 持续射击</span><b id="gun-status">按住自动瞄准</b></div>
+      <div class="weapon-meter"><span>加力燃料 <kbd>SHIFT</kbd></span><div class="meter"><i id="boost-fill"></i></div></div>
+      <div class="evade-status"><span>桶滚闪避 <kbd>R</kbd></span><b id="evade-status">就绪</b></div>
+    </section>
+    <div id="combat-log" class="combat-log" aria-live="polite"></div>
+    <div class="keyboard-help"><span>鼠标中心微调 · 外圈急转 · 左键开火</span><span>W/S 调速 · A/D 转向 · ↑ 拉升 / ↓ 俯冲</span><span>Q/E 滚转 · TAB 目标</span><span>友舰上空低速补给</span></div>
+    <div class="touch-controls" aria-label="触屏飞行控制">
+      <div id="touch-look" class="touch-look" aria-label="拖动微调机头瞄准"><span>滑动瞄准</span></div>
+      <div id="flight-joystick" class="joystick" role="application" aria-label="拖动摇杆控制飞机"><span id="joystick-knob"></span><small class="joystick-pitch-cue">↑ 拉升</small><div class="touch-throttle"><button data-key="KeyS" aria-label="按住减速">− 油门</button><button data-key="KeyW" aria-label="按住加速">油门 +</button></div></div>
+      <div class="touch-actions"><button id="touch-target" class="touch-small" aria-label="切换目标">目标</button><button data-key="ShiftLeft" class="touch-small" aria-label="按住加力">加力</button><button id="touch-evade" class="touch-small" aria-label="桶滚闪避">闪避</button><button id="touch-bomb" class="touch-bomb" aria-label="投下炸弹">投弹</button><button id="touch-fire" class="touch-fire" aria-label="按住持续射击并自动瞄准，拖动可手动接管"><svg viewBox="0 0 32 32" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="16" cy="16" r="9"/><path d="M16 2v8m0 12v8M2 16h8m12 0h8"/><circle cx="16" cy="16" r="2"/></svg><span>开火</span></button></div>
+    </div>
+    <div id="state-overlay" class="state-overlay">
+      <div class="cover-art" aria-hidden="true"></div>
+      <div class="cover-heading" aria-hidden="true"><span>PACIFIC THEATER / JUNE 1942</span><strong>MIDWAY<span>1942</span></strong><p>决胜太平洋</p><small>掠过海面 · 穿越炮火 · 一击制胜</small></div>
+      <section class="briefing" aria-labelledby="overlay-title">
+        <div class="briefing-topline"><span id="overlay-eyebrow">PACIFIC THEATER · 1942</span><span>01 / AIR STRIKE</span></div>
+        <h1 id="overlay-title">中途岛海战</h1><p id="overlay-description">正在准备飞机与海域，请稍候。</p>
+        <div id="loading-panel" class="loading-panel">
+          <div class="loading-heading"><span id="loading-stage" role="status" aria-live="polite">正在准备飞行系统</span><strong id="loading-percent">0%</strong></div>
+          <div id="loading-progress" class="loading-track" role="progressbar" aria-label="战场加载进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="loading-fill"></i></div>
+          <div class="loading-caption"><span>FLIGHT SYSTEM / PREPARATION</span><span id="loading-caption-state">请稍候</span></div>
+        </div>
+        <div id="briefing-details">
+          <div class="aircraft-picker" aria-label="点击飞机图片出击">
+            <button class="aircraft-choice" disabled data-aircraft="sbd" aria-label="驾驶F4U-4 海盗出击"><small>01 / STRIKE</small><img src="./assets/ui/aircraft-sbd.webp" width="480" height="280" alt="F4U-4 海盗游戏模型预览"><b>F4U-4 海盗</b><span>耐久 120 · 挂弹 6 枚</span><em>驾驶出击 ↗</em></button>
+            <button class="aircraft-choice" disabled data-aircraft="spitfire" aria-label="驾驶喷火战斗机出击"><small>02 / AGILITY</small><img src="./assets/ui/aircraft-spitfire.webp" width="480" height="280" alt="喷火战斗机游戏模型预览"><b>喷火战斗机</b><span>耐久 100 · 灵活转向</span><em>驾驶出击 ↗</em></button>
+            <button class="aircraft-choice" disabled data-aircraft="d3a" aria-label="驾驶F4F 野猫出击"><small>03 / FIGHTER</small><img src="./assets/ui/aircraft-d3a.webp" width="480" height="280" alt="F4F 野猫游戏模型预览"><b>F4F 野猫</b><span>耐久 120 · 挂弹 6 枚</span><em>驾驶出击 ↗</em></button>
+            <button class="aircraft-choice" disabled data-aircraft="zero" aria-label="驾驶A6M 零式出击"><small>04 / LIGHT</small><img src="./assets/ui/aircraft-zero.webp" width="480" height="280" alt="A6M 零式游戏模型预览"><b>A6M 零式</b><span>耐久 100 · 灵活转向</span><em>驾驶出击 ↗</em></button>
+          </div>
+          <p class="touch-brief">按住开火自动瞄准 · 摇杆 / 滑动可手动接管</p>
+          <div class="briefing-tactics"><p><b>夺取制空权</b>按住左键 / F 持续射击，停下鼠标自动跟随前方敌机；移动鼠标手动接管，Q/E 滚转，R 桶滚躲闪。</p><p><b>突破防空网</b>俯冲接近敌舰，让投弹圆环落在甲板，按空格 / B 或点击投弹按钮后拉升。</p><p><b>返航再出击</b>靠近友方航母、低速平飞，修复机体并补充炸弹。</p></div>
+          <p class="arcade-note">街机自定义阵容 · 模型图片与游戏内外观一致</p>
+        </div>
+        <details id="aim-settings" class="gyro-settings aim-settings">
+          <summary id="aim-summary">瞄准与射击 · 自动辅助开启</summary>
+          <label class="aim-toggle"><input id="aim-assisted" type="checkbox" checked>自动辅助瞄准</label>
+          <p>按住开火，自动跟随前方敌机并计算提前量；击落后自动寻找下一个目标。转向、滑动或转动手机可手动接管，停止操作后恢复辅助。机炮可持续射击，关闭辅助可纯手动瞄准。</p>
+          <label class="gyro-sensitivity" for="aim-touch-sensitivity">触屏瞄准灵敏度 <output id="aim-touch-value">0.80×</output><input id="aim-touch-sensitivity" type="range" min="0.5" max="1.5" step="0.05" value="0.8" aria-label="触屏瞄准灵敏度"></label>
+          <label class="gyro-sensitivity" for="aim-mouse-sensitivity">鼠标微调灵敏度 <output id="aim-mouse-value">0.85×</output><input id="aim-mouse-sensitivity" type="range" min="0.5" max="1.5" step="0.05" value="0.85" aria-label="鼠标微调灵敏度"></label>
+          <small>按住开火时微调更稳；鼠标移到外圈或大幅推杆仍可快速转向。</small>
+        </details>
+        <details id="audio-settings" class="gyro-settings audio-settings">
+          <summary>声音设置与检测</summary>
+          <p id="audio-status" role="status">点击“播放测试音”开启或恢复声音。</p>
+          <div class="gyro-actions"><button id="audio-test" type="button">播放测试音</button></div>
+          <small>测试音会开启游戏声音。若仍听不到，请调高媒体音量、检查静音模式和蓝牙耳机输出；也可用 Safari 或 Chrome 打开。</small>
+          <details id="audio-details" class="gyro-diagnostics"><summary>声音故障信息</summary><pre id="audio-diagnostics">等待声音检测</pre></details>
+        </details>
+        <details id="gyro-settings" class="gyro-settings" data-status="off">
+          <summary id="gyro-summary">陀螺仪操控 · 已关闭</summary>
+          <p id="gyro-status" role="status">陀螺仪已关闭</p>
+          <p id="gyro-detail">开启后，轻轻转动手机微调机头；摇杆和滑动瞄准仍可使用。</p>
+          <a href="https://ihca.cn/midway/" target="_blank" rel="noopener">用 HTTPS 打开决战中途岛</a>
+          <details class="gyro-diagnostics"><summary>传感器诊断</summary><pre id="gyro-diagnostics">尚未启用</pre><small>进入游戏后才控制机头。iPhone 建议使用 Safari；微信、抖音等内置浏览器可能不开放权限。</small></details>
+          <label class="gyro-sensitivity" for="gyro-sensitivity">灵敏度 <output id="gyro-sensitivity-value" for="gyro-sensitivity">1.0×</output><input id="gyro-sensitivity" type="range" min="0.3" max="3" step="0.1" value="1" aria-label="陀螺仪灵敏度"></label>
+          <div class="gyro-actions"><button id="gyro-enable" type="button">启用陀螺仪</button><button id="gyro-disable" type="button" disabled>关闭陀螺仪</button><button id="gyro-calibrate" type="button" disabled>转动归零</button></div>
+          <small>推荐横屏握稳手机。战斗中点击“暂停”可调整；iPhone 首次启用请允许运动与方向访问。</small>
+        </details>
+        <div id="result-stats" class="result-stats" hidden></div>
+        <button id="overlay-action" class="primary-button" disabled>载入中…</button><button id="hangar-button" class="hangar-button" hidden>返回机库 · 更换飞机</button><small id="overlay-footnote">单机操纵 · 空战与俯冲轰炸</small>
+      </section>
+    </div>
+  </div>
+  <noscript>请启用 JavaScript，以运行中途岛空战。</noscript>
+</body>
+</html>

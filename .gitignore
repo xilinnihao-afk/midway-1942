@@ -1,0 +1,15 @@
+artifacts/
+minitool/
+node_modules/
+.DS_Store
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.zip
+__pycache__/
+standalone.js
+assets/embedded.js
+assets/audio/embedded.js

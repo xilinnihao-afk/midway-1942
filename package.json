@@ -1,0 +1,14 @@
+{
+  "name": "midway-1942",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "决战中途岛 — a Three.js browser arcade air-combat game",
+  "license": "MIT",
+  "engines": { "node": ">=22.15.0" },
+  "scripts": {
+    "test": "node scripts/test-all.mjs",
+    "build": "python3 scripts/pack.py",
+    "check:offline": "node --experimental-vm-modules scripts/check-offline.mjs"
+  }
+}

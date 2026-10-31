@@ -1,0 +1,12 @@
+<!doctype html><html><head><meta charset="UTF-8"><title>模型预览制作</title><script type="importmap">{"imports":{"three":"../vendor/three.module.js"}}</script><style>body{margin:0;background:#0e2632;color:white;font:14px Arial}main{display:grid;grid-template-columns:repeat(2,480px);gap:0}canvas{display:block;width:480px;height:280px}p{margin:10px}</style></head><body><p id="status">正在绘制真实游戏模型</p><main></main><script type="module">
+import * as THREE from 'three';import {AssetLoader} from '../js/AssetLoader.js';
+const loader=new AssetLoader();
+for(const [key,src] of [['sbd','f4u-4'],['spitfire','supermarine_spitfire'],['d3a','imported_f4f'],['zero','a6m_zero_low_poly']]){
+ const model=loader.normalize(await loader.loadGLB(key,'../assets/models/'+src+'.glb'),key);
+ const scene=new THREE.Scene();scene.background=new THREE.Color('#163442');scene.add(model);
+ scene.add(new THREE.HemisphereLight(0xe4f3ff,0x405359,3));const sun=new THREE.DirectionalLight(0xffead4,4);sun.position.set(-6,12,7);scene.add(sun);
+ const camera=new THREE.PerspectiveCamera(30,480/280,.1,100);camera.position.set(10,7,15).multiplyScalar(.85);camera.lookAt(0,0,0);
+ const r=new THREE.WebGLRenderer({antialias:true});r.setSize(480,280);r.setPixelRatio(1);r.toneMapping=THREE.ACESFilmicToneMapping;r.toneMappingExposure=1.25;r.domElement.id=key;document.querySelector('main').append(r.domElement);r.render(scene,camera);
+}
+document.querySelector('#status').textContent='四架飞机预览已完成';
+</script></body></html>

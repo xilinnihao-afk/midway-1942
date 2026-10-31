@@ -1,0 +1,83 @@
+{
+  "engine": {
+    "path": "assets/audio/engine.wav",
+    "duration": 5.88,
+    "loop": true,
+    "peak": 0.82,
+    "rms": 0.272,
+    "boundaryDelta": 0.0,
+    "source": "deterministic procedural sound design; no recording or external AI service"
+  },
+  "wind": {
+    "path": "assets/audio/wind.wav",
+    "duration": 3.88,
+    "loop": true,
+    "peak": 0.82,
+    "rms": 0.2288,
+    "boundaryDelta": 0.0,
+    "source": "deterministic procedural sound design; no recording or external AI service"
+  },
+  "gun": {
+    "path": "assets/audio/gun.wav",
+    "duration": 0.26,
+    "loop": false,
+    "peak": 0.82,
+    "rms": 0.0668,
+    "boundaryDelta": 0.0,
+    "source": "deterministic procedural sound design; no recording or external AI service"
+  },
+  "cannon": {
+    "path": "assets/audio/cannon.wav",
+    "duration": 1.15,
+    "loop": false,
+    "peak": 0.82,
+    "rms": 0.0475,
+    "boundaryDelta": 0.0,
+    "source": "deterministic procedural sound design; no recording or external AI service"
+  },
+  "flak": {
+    "path": "assets/audio/flak.wav",
+    "duration": 1.25,
+    "loop": false,
+    "peak": 0.82,
+    "rms": 0.0531,
+    "boundaryDelta": 0.0,
+    "source": "deterministic procedural sound design; no recording or external AI service"
+  },
+  "explosion": {
+    "path": "assets/audio/explosion.wav",
+    "duration": 2.0,
+    "loop": false,
+    "peak": 0.82,
+    "rms": 0.0534,
+    "boundaryDelta": 0.0,
+    "source": "deterministic procedural sound design; no recording or external AI service"
+  },
+  "hit": {
+    "path": "assets/audio/hit.wav",
+    "duration": 0.32,
+    "loop": false,
+    "peak": 0.82,
+    "rms": 0.0653,
+    "boundaryDelta": 0.0,
+    "source": "deterministic procedural sound design; no recording or external AI service"
+  },
+  "whiz": {
+    "path": "assets/audio/whiz.wav",
+    "duration": 0.29,
+    "loop": false,
+    "peak": 0.82,
+    "rms": 0.1794,
+    "boundaryDelta": 0.0,
+    "source": "deterministic procedural sound design; no recording or external AI service"
+  },
+  "splash": {
+    "path": "assets/audio/splash.wav",
+    "duration": 1.5,
+    "loop": false,
+    "peak": 0.82,
+    "rms": 0.0826,
+    "boundaryDelta": 0.0,
+    "source": "deterministic procedural sound design; no recording or external AI service"
+  }
+}
